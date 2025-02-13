@@ -62,8 +62,8 @@ public class Engine extends Application {
         try {
             /* Initialize the game environment and agents */ 
             Environment environment = new Environment(0, 0, 1280, 780, "/images/environment/moon'surface.png");
-            Agent chonBota = new Agent(400, 390, 90, 65, 3, 1000, "/images/agents/chonBota.png", false);
-            Agent chonBot = new Agent(920, 440, 90, 65, 1, 3, "/images/agents/chonBot.png", true);
+            Agent chonBota = new Agent(400, 390, 60, 80, 3, 100, "/images/agents/moon.png", false);
+            Agent chonBot = new Agent(920, 440, 60, 80, 1, 5, "/images/agents/moonE.png", true);
             environment.setProtagonist(chonBota);
             environment.getAgents().add(chonBot);
             environment.setPauseImage("/images/environment/pause.png");
