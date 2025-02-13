@@ -52,7 +52,7 @@ public class Engine extends Application {
      * and graphical components.
      * <p>
      * This method sets up the game scene, handles input events, and starts the
-     * game loop using {@link AnimationTimer}.
+     * game loop using {@link javafx.animation.AnimationTimer}.
      * </p>
      *
      * @param theStage the primary stage for the application.
@@ -92,13 +92,16 @@ public class Engine extends Application {
                     System.out.println("Pressed: " + code);
 
                     if (code.equals("P")) {
-                        isPaused = !isPaused;
+                        isPaused = !isPaused; // Alterna pausa
+                    }
+
+                    if (code.equals("SPACE")) {
+                        environment.getProtagonist().jump(); // Chama o método de pulo
                     }
 
                     if (!isPaused && !input.contains(code)) {
                         input.add(code);
                     }
-
                 }
             });
 
@@ -129,7 +132,6 @@ public class Engine extends Application {
                         mediator.drawPauseScreen();
                     } else {
                         /* ChonBota Only Moves if the Player Press Something */
-                        /* Update the protagonist's movements if input exists */
                         if (!input.isEmpty()) {
                             /* ChonBota's Movements */
                             environment.getProtagonist().move(input);
@@ -137,7 +139,6 @@ public class Engine extends Application {
                         }
 
                         /* ChonBot's Automatic Movements */
-                        /* Update the other agents' movements */ 
                         environment.getAgents().get(0).chase(environment.getProtagonist().getPosX(),
                                 environment.getProtagonist().getPosY());
 

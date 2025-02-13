@@ -51,29 +51,16 @@ public class Agent {
     /* Invulnerability (in milliseconds) */
     private final long INVULNERABILITY_COOLDOWN = 500;
 
-    /**
-     * Constructor to initialize the agent properties.
-     *
-     * @param posX      the agent's initial X (horizontal) position
-     * @param posY      the agent's initial Y (vertical) position
-     * @param height    the agent's height
-     * @param width     the agent's width
-     * @param speed     the agent's speed
-     * @param health    the agent's health
-     * @param pathImage the path to the agent's image
-     */
-    public Agent(int posX, int posY, int height, int width, int speed, int health, String pathImage) {
-        this.posX = posX;
-        this.posY = posY;
-        this.height = height;
-        this.width = width;
-        this.speed = speed;
-        this.health = health;
-        this.fullHealth = health;
-        this.image = new Image(getClass().getResource(pathImage).toExternalForm());
-        this.lastHitTime = 0;
-        this.invulnerable = false;
-    }
+    // Jumping parameters
+    private boolean isJumping = false;
+    private int jumpHeight = 140;
+    private int gravity = 7;
+
+    // Movement boundaries
+    private int minX = 0;
+    private int maxX = 1300; // Assuming the right side boundary
+    private int minY = 375;
+    private int maxY = 1000; // Assuming the bottom side boundary
 
     /**
      * Constructor to initialize the agent properties including its direction.
@@ -88,8 +75,8 @@ public class Agent {
      * @param flipped   the agent's direction (RIGHT=0 or LEFT=1)
      */
     public Agent(int posX, int posY, int height, int width, int speed, int health, String pathImage, boolean flipped) {
-        this.posX = posX;
-        this.posY = posY;
+        this.posX = Math.max(minX, Math.min(posX, maxX - width));  // Limite horizontal
+        this.posY = Math.max(minY, Math.min(posY, maxY - height));  // Limite vertical
         this.height = height;
         this.width = width;
         this.speed = speed;
@@ -100,213 +87,119 @@ public class Agent {
     }
 
     /**
-     * Gets the X (horizontal) position of the agent.
+     * Constructor to initialize the agent properties without direction.
      *
-     * @return the X (horizontal) position of the agent
+     * @param posX      the agent's initial X (horizontal) position
+     * @param posY      the agent's initial Y (vertical) position
+     * @param height    the agent's height
+     * @param width     the agent's width
+     * @param speed     the agent's speed
+     * @param health    the agent's health
+     * @param pathImage the path to the agent's image
      */
+    public Agent(int posX, int posY, int height, int width, int speed, int health, String pathImage) {
+        this(posX, posY, height, width, speed, health, pathImage, false);
+    }
+
+    // Getter and setter methods
+
     public int getPosX() {
         return posX;
     }
 
-    /**
-     * Sets the agent's X (horizontal) position.
-     *
-     * @param posX the new X (horizontal) position
-     */
     public void setPosX(int posX) {
-        this.posX = posX;
+        this.posX = Math.max(minX, Math.min(posX, maxX - width));  // Limite horizontal
     }
 
-    /**
-     * Gets the Y (vertical) position of the agent.
-     *
-     * @return the Y (vertical) position of the agent
-     */
     public int getPosY() {
         return posY;
     }
 
-    /**
-     * Sets the Y (vertical) position of the agent.
-     *
-     * @param posY the new Y (vertical) position
-     */
     public void setPosY(int posY) {
-        this.posY = posY;
+        if (isJumping) {
+            this.posY = posY;  // Permite pulo acima de minY
+        } else {
+            this.posY = Math.max(minY, Math.min(posY, maxY - height));  // Limite vertical
+        }
     }
 
-    /**
-     * Gets the height of the agent.
-     *
-     * @return the height of the agent
-     */
     public int getHeight() {
         return height;
     }
 
-    /**
-     * Sets the height of the agent.
-     *
-     * @param height the new height
-     */
     public void setHeight(int height) {
         this.height = height;
     }
 
-    /**
-     * Gets the width of the agent.
-     *
-     * @return the width of the agent
-     */
     public int getWidth() {
         return width;
     }
 
-    /**
-     * Sets the width of the agent.
-     *
-     * @param width the new width
-     */
     public void setWidth(int width) {
         this.width = width;
     }
 
-    /**
-     * Gets the agent's speed.
-     *
-     * @return the agent's speed
-     */
     public int getSpeed() {
         return speed;
     }
 
-    /**
-     * Sets the speed of the agent.
-     *
-     * @param speed the new speed
-     */
     public void setSpeed(int speed) {
         this.speed = speed;
     }
 
-    /**
-     * Gets the agent's health.
-     *
-     * @return the agent's health
-     */
     public int getHealth() {
         return health;
     }
 
-    /**
-     * Sets the health of the agent.
-     *
-     * @param health the new health
-     */
     public void setHealth(int health) {
         this.health = health;
     }
 
-    /**
-     * Gets the agent's maximum health.
-     *
-     * @return the agent's maximum health
-     */
     public int getFullHealth() {
         return fullHealth;
     }
 
-    /**
-     * Sets the maximum health of the agent.
-     *
-     * @param fullHealth the new maximum health
-     */
     public void setFullHealth(int fullHealth) {
         this.fullHealth = fullHealth;
     }
 
-    /**
-     * Gets the agent image.
-     *
-     * @return the agent image
-     */
     public Image getImage() {
         return image;
     }
 
-    /**
-     * Gets the agent flipped status.
-     *
-     * @param image the new image
-     */
     public void setImage(Image image) {
         this.image = image;
     }
 
-    /**
-     * Gets if the agent is flipped.
-     *
-     * @return if the agent is flipped
-     */
     public boolean isFlipped() {
         return flipped;
     }
 
-    /**
-     * Sets the agent flipped status.
-     *
-     * @param flipped the new flipped status
-     */
     public void setFlipped(boolean flipped) {
         this.flipped = flipped;
     }
 
-    /**
-     * Gets the last hit taken.
-     */
-    public long getlastHitTime() {
+    public long getLastHitTime() {
         return lastHitTime;
     }
 
-    /**
-     * Sets the last hit taken.
-     *
-     * @param lastHitTime the new image
-     */
-    public void setlastHitTime(long lastHitTime) {
+    public void setLastHitTime(long lastHitTime) {
         this.lastHitTime = lastHitTime;
     }
 
-    /**
-     * Gets invulnerable cooldown time.
-     *
-     * @return the time is milliseconds
-     */
     public long getInvulnerabilityCooldown() {
         return INVULNERABILITY_COOLDOWN;
     }
 
-    /**
-     * Gets if the agent is invulnerable.
-     *
-     * @return if the agent is invulnerable
-     */
     public boolean isInvulnerable() {
         return invulnerable;
     }
 
-    /**
-     * Sets the agent invulnerable status.
-     *
-     * @param invulnerable the new invulnerable status
-     */
     public void setInvulnerable(boolean invulnerable) {
         this.invulnerable = invulnerable;
     }
 
-    /**
-     * Flips the Image horizontally.
-     */
+    // Flip image horizontally for direction
     private void flipImage() {
         ImageView flippedImage = new ImageView(image);
         flippedImage.setScaleX(-1);
@@ -316,12 +209,7 @@ public class Agent {
         this.image = flippedImage.snapshot(params, null);
     }
 
-    /**
-     * Moves the agent based on the movement commands provided.
-     *
-     * @param movements a list of movement directions ("RIGHT", "LEFT", "UP",
-     *                  "DOWN")
-     */
+    // Moves the agent based on input directions (RIGHT, LEFT, UP, DOWN)
     public void move(List<String> movements) {
         if (movements.contains("RIGHT")) {
             if (flipped)
@@ -338,54 +226,53 @@ public class Agent {
         }
     }
 
-    /**
-     * Makes the agent chase a target based on its coordinates.
-     *
-     * @param targetX the target's X (horizontal) position
-     * @param targetY the target's Y (vertical) position
-     */
+    // Makes the agent chase a target (targetX, targetY)
     public void chase(int targetX, int targetY) {
         if (targetX > this.posX) {
-            this.move(new ArrayList<String>(List.of("RIGHT")));
+            this.move(new ArrayList<>(List.of("RIGHT")));
         } else if (targetX < this.posX) {
-            this.move(new ArrayList<String>(List.of("LEFT")));
+            this.move(new ArrayList<>(List.of("LEFT")));
         }
         if (targetY > this.posY) {
-            this.move(new ArrayList<String>(List.of("DOWN")));
+            this.move(new ArrayList<>(List.of("DOWN")));
         } else if (targetY < this.posY) {
-            this.move(new ArrayList<String>(List.of("UP")));
+            this.move(new ArrayList<>(List.of("UP")));
         }
     }
 
-    /**
-     * Makes the agent take damage.
-     * If health reaches 0, the game must end.
-     *
-     * @param damage the amount of damage to be applied
-     */
+    // Take damage and handle invulnerability
     public void takeDamage(int damage) {
         this.invulnerable = this.updateInvulnerability();
         if (!this.invulnerable && this.health > 0) {
-            /* Decrease health. */
             this.health = health - damage;
-            /* After taking the damage, the health must not be negative. */
-            if (this.health < 0)
-                this.health = 0;
-            else
-                this.lastHitTime = System.currentTimeMillis();
+            if (this.health < 0) this.health = 0;
+            else this.lastHitTime = System.currentTimeMillis();
         }
     }
 
-    /**
-     * Method to update the invulnerable status.
-     *
-     * @return if the agent is still invulnerable
-     */
+    // Update invulnerability status
     private boolean updateInvulnerability() {
         if (System.currentTimeMillis() - lastHitTime >= INVULNERABILITY_COOLDOWN) {
             return false;
         }
         return true;
+    }public void jump() {
+        if (!isJumping) {  // Check if the agent is already jumping
+            isJumping = true;
+            new Thread(() -> {
+                // Jump up (ascending)
+                for (int i = 0; i < jumpHeight / gravity; i++) {
+                    posY -= gravity;  // Move upwards
+                    try { Thread.sleep(20); } catch (InterruptedException e) {}
+                }
+                
+                // Fall down (gravity effect)
+                for (int i = 0; i < jumpHeight / gravity; i++) {
+                    posY += gravity;  // Move downwards
+                    try { Thread.sleep(20); } catch (InterruptedException e) {}
+                }
+                isJumping = false;  // Reset jumping state
+            }).start();
+        }
     }
-
-}
+}    
