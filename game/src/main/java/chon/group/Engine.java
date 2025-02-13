@@ -61,7 +61,7 @@ public class Engine extends Application {
     public void start(Stage theStage) {
         try {
             /* Initialize the game environment and agents */ 
-            Environment environment = new Environment(0, 0, 1280, 780, "/images/environment/castle.png");
+            Environment environment = new Environment(0, 0, 1280, 780, "/images/environment/moon'surface.png");
             Agent chonBota = new Agent(400, 390, 90, 65, 3, 1000, "/images/agents/chonBota.png", false);
             Agent chonBot = new Agent(920, 440, 90, 65, 1, 3, "/images/agents/chonBot.png", true);
             environment.setProtagonist(chonBota);
